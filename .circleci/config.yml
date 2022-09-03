@@ -72,7 +72,7 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: cimg/node:15.0.1
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
@@ -89,7 +89,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: cimg/node:15.0.1
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
