@@ -1,6 +1,36 @@
 version: 2.1
 
 commands:
+  install_awscli:
+   description: install AWS cli
+   steps:
+     - run:
+         name: Install aws cli
+         command: |
+           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip awscliv2.zip
+           sudo ./aws/install
+  
+  install_nodejs:
+    description: Install Nodejs
+    steps:
+      - run: 
+          name: Install nodejs
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
+
+  install_ansible:
+    description: Install Ansible for latter use
+    steps:
+      - run:
+          name: Install Ansible
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -164,6 +194,7 @@ jobs:
               --tags project=udapeople \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      # Fetch the public IP address of the EC2 instance and append it to inventory.txt file
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -180,6 +211,33 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: cimg/base:stable
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+         fingerprints:
+           - "38:69:4b:99:77:35:dc:30:1c:88:3f:69:d6:d6:fd:12"
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+
+      - install_ansible
+      - install_awscli
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 
 workflows:
   default:
@@ -199,8 +257,8 @@ workflows:
           filters:
             branches:
               only: [master]
-#       - configure-infrastructure:
-#           requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
 #       - run-migrations:
 #           requires: [configure-infrastructure]
 #       - deploy-frontend:
