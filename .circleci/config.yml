@@ -314,114 +314,114 @@ jobs:
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-  deploy-backend:
-    docker:
-      # Docker image here that supports Ansible
-      - image: cimg/base:stable
-    steps:
-      # Checkout code from git
-      - checkout
-      # Add ssh keys with fingerprint
-      - add_ssh_keys:
-         fingerprints:
-           - "38:69:4b:99:77:35:dc:30:1c:88:3f:69:d6:d6:fd:12"
-      # attach workspace
-      - attach_workspace:
-          at: ~/
-      - install_nodejs
-      - install_awscli
-      - install_ansible
+  # deploy-backend:
+  #   docker:
+  #     # Docker image here that supports Ansible
+  #     - image: cimg/base:stable
+  #   steps:
+  #     # Checkout code from git
+  #     - checkout
+  #     # Add ssh keys with fingerprint
+  #     - add_ssh_keys:
+  #        fingerprints:
+  #          - "38:69:4b:99:77:35:dc:30:1c:88:3f:69:d6:d6:fd:12"
+  #     # attach workspace
+  #     - attach_workspace:
+  #         at: ~/
+  #     - install_nodejs
+  #     - install_awscli
+  #     - install_ansible
 
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get install python3 tar gzip -y
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           sudo apt-get install python3 tar gzip -y
 
-      - run:
-          name: Deploy backend
-          command: |
-            cd backend
-            npm i
-            npm run build
-            cd ..
-            # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
-            mkdir -p ~/project/.circleci/ansible/roles/deploy/files 
-            cp -p artifact.tar.gz .circleci/ansible/roles/deploy/files
-            cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure  
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  #     - run:
+  #         name: Deploy backend
+  #         command: |
+  #           cd backend
+  #           npm i
+  #           npm run build
+  #           cd ..
+  #           # Zip the directory
+  #           tar -C backend -czvf artifact.tar.gz .
+  #           mkdir -p ~/project/.circleci/ansible/roles/deploy/files 
+  #           cp -p artifact.tar.gz .circleci/ansible/roles/deploy/files
+  #           cd .circleci/ansible
+  #           echo "Contents  of the inventory.txt file is -------"
+  #           cat inventory.txt
+  #           ansible-playbook -i inventory.txt deploy-backend.yml
+  #     # Here's where you will add some code to rollback on failure  
+  #     - destroy-environment:
+  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  #     - revert-migrations:
+  #           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-  smoke-test:
-    docker:
-      # Lightweight Docker image 
-      - image: cimg/base:stable
-    steps:
-      # Checkout code from git
-      - checkout
+  # smoke-test:
+  #   docker:
+  #     # Lightweight Docker image 
+  #     - image: cimg/base:stable
+  #   steps:
+  #     # Checkout code from git
+  #     - checkout
 
-      - install_nodejs
-      - install_awscli
+  #     - install_nodejs
+  #     - install_awscli
 
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get install python3 tar gzip -y
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           sudo apt-get install python3 tar gzip -y
 
-      - run:
-          name: Backend smoke test.
-          command: |
-            # BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-            #   --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            #   --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            #   --output text)
-            # export API_URL=http://${BACKEND_PUBLIC_IP}:3030
-            # echo ${BACKEND_PUBLIC_IP}
-            # echo backend-${CIRCLE_WORKFLOW_ID:0:7}
-            # echo ${API_URL}
-            # if curl -s $API_URL/api/status | grep "ok"
-            # then
-            #   exit 0
-            # else
-            #   exit 1
-            # fi
-            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text)
-            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
-            echo ${BACKEND_PUBLIC_IP}
-            echo ${API_URL}
-            sleep 2m
-            if curl -v --connect-timeout 30 "${API_URL}/api/status" | grep "ok"
-            then
-              exit 0
-            else
-              exit 1
-            fi
+  #     - run:
+  #         name: Backend smoke test.
+  #         command: |
+  #           # BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+  #           #   --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+  #           #   --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #           #   --output text)
+  #           # export API_URL=http://${BACKEND_PUBLIC_IP}:3030
+  #           # echo ${BACKEND_PUBLIC_IP}
+  #           # echo backend-${CIRCLE_WORKFLOW_ID:0:7}
+  #           # echo ${API_URL}
+  #           # if curl -s $API_URL/api/status | grep "ok"
+  #           # then
+  #           #   exit 0
+  #           # else
+  #           #   exit 1
+  #           # fi
+  #           BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+  #             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #             --output text)
+  #           export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
+  #           echo ${BACKEND_PUBLIC_IP}
+  #           echo ${API_URL}
+  #           sleep 2m
+  #           if curl -v --connect-timeout 30 "${API_URL}/api/status" | grep "ok"
+  #           then
+  #             exit 0
+  #           else
+  #             exit 1
+  #           fi
 
-      - run:
-          name: Frontend smoke test.
-          command: |
-            FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
-            echo $FRONTEND_WEBSITE
-            if curl -s $FRONTEND_WEBSITE | grep "Welcome"
-            then
-              exit 1
-            else
-              exit 1
-            fi
-       # Here's where you will add some code to rollback on failure  
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
+  #     - run:
+  #         name: Frontend smoke test.
+  #         command: |
+  #           FRONTEND_WEBSITE=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com
+  #           echo $FRONTEND_WEBSITE
+  #           if curl -s $FRONTEND_WEBSITE | grep "Welcome"
+  #           then
+  #             exit 1
+  #           else
+  #             exit 1
+  #           fi
+  #      # Here's where you will add some code to rollback on failure  
+  #     - destroy-environment:
+  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  #     - revert-migrations:
+  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
 
 workflows:
   default:
@@ -447,10 +447,10 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
 #       - cloudfront-update:
 #           requires: [smoke-test]
 #       - cleanup:
