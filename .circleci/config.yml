@@ -454,6 +454,9 @@ jobs:
       # Docker image here
       - image: amazon/aws-cli
     steps:
+      # Checkout code from Git
+      - checkout
+      
       - run:
           name: Remove old stacks and files
           command: |
