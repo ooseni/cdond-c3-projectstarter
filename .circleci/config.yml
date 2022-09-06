@@ -317,11 +317,11 @@ jobs:
       - install_awscli
       - install_ansible
 
-       run:
-          name: Install dependencies
-          become: yes
-          command: |
-            sudo apt install tar gzip curl python3 -y
+      - run:
+        name: Install dependencies
+        become: yes
+        command: |
+          sudo apt install tar gzip curl python3 -y
 
       - run:
           name: Get backend url
