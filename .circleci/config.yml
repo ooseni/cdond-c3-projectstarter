@@ -503,11 +503,11 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                           --stack-status-filter CREATE_COMPLETE --no-paginate --output text))               
             echo Stack names: "${STACKS[@]}"
-            if [[ $OldWorkflowID == "" ]]
+            if [[ "${OldWorkflowID}" == "" ]]
             then
             echo "No workflow id found"
             else
-            if [[ "$${STACKS[@]}" != "$OldWorkflowID" ]]
+            if [[ "$${STACKS[@]}" != "${OldWorkflowID}" ]]
             # if [[ "${STACKS[@]}" != "${OldWorkflowID}" ]]
             then
               echo "Removing old Stacks#....${OldWorkflowID}"
