@@ -503,7 +503,7 @@ jobs:
   #           export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
   #                         --stack-status-filter CREATE_COMPLETE --no-paginate --output text))               
   #           echo Stack names: "${STACKS[@]}"
-  #           if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+  #           if [[ "${STACKS[@]}" != "${OldWorkflowID}" ]]
   #           then
   #             echo "Removing old Stacks#....${OldWorkflowID}"
   #             echo "s3://udapeople-${OldWorkflowID}"
