@@ -215,53 +215,53 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#       - image: cimg/base:stable
-#     steps:
-#       # Checkout code from git
-#       - checkout
-#       # Add ssh keys with fingerprint
-#       - add_ssh_keys:
-#          fingerprints:
-#            - "38:69:4b:99:77:35:dc:30:1c:88:3f:69:d6:d6:fd:12"
-#       # attach workspace
-#       - attach_workspace:
-#           at: ~/
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: cimg/base:stable
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+         fingerprints:
+           - "38:69:4b:99:77:35:dc:30:1c:88:3f:69:d6:d6:fd:12"
+      # attach workspace
+      - attach_workspace:
+          at: ~/
 
-#       - install_ansible
-#       - install_awscli
+      - install_ansible
+      - install_awscli
 
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             sudo apt -y install tar gzip
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt -y install tar gzip
 
-#       - run:
-#           name: Configure server
-#           command: |
-#             echo ENVIRONMENT=production > backend/.env
-#             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
-#             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-#             echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
-#             echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-#             echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
-#             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
-#             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-#             echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-#             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-#             cat backend/.env
-#             cd .circleci/ansible
-#             ansible-playbook -i inventory.txt configure-server.yml
+      - run:
+          name: Configure server
+          command: |
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            cat backend/.env
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
 
-#       - persist_to_workspace:
-#           root: ~/
-#           paths:
-#             - project/backend/.env
-#       # Here's where you will add some code to rollback on failure
-#       - destroy-environment:
-#           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/.env
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 #   run-migrations:
 #     docker:
@@ -530,8 +530,8 @@ workflows:
           filters:
             branches:
               only: [master]
-#       - configure-infrastructure:
-#           requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
 #       - run-migrations:
 #           requires: [configure-infrastructure]
 #       - deploy-frontend:
